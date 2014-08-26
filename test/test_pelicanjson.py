@@ -53,7 +53,6 @@ class TestDunderMethods(TestCase):
     def test_update_from_list(self):
         self.fail('update test not implemented')
 
-        
     def test_contains(self):
         self.fail('contains test not implemented')
 

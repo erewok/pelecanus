@@ -12,8 +12,8 @@ than Python's recursion limit (default: 1000 stack frames) will work.
 
 In addition, a JSON object that is a top-level array won't work.
 
-Otherwise, there may be some things in here (hopefully) that will
-make your job dealing with nested JSON easier.
+Otherwise, there may be some things in here that will make your job dealing
+with nested JSON easier.
 """
 import copy
 import json
@@ -132,8 +132,6 @@ class PelicanJson(collections.MutableMapping):
                 for item in v:
                     if type(item) == type(self):
                         yield from iter(item)
-        # for k, v in self.items():
-        #     yield k
 
     def items(self, path=None):
         """Yields path-value pairs from throughout the entire tree.
