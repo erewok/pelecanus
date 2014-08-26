@@ -34,13 +34,13 @@ class PelicanJson(collections.MutableMapping):
        >>> pelican = PelicanJson(content)
 
     Once you have PelicanJson object, you can find all the nested paths and
-    the values to be found at those paths::
+    the values located at those paths::
 
        >>> for item in pelican.enumerate():
        ...   print(item)
        (['links', alternate', 0, 'href'], 'somelink')
 
-    You can also get back from the value from a nested path::
+    You can also get back the value from a nested path::
 
        >>> pelican.get_nested_value(['links', alternate', 0, 'href'])
        'somelink'
@@ -55,12 +55,12 @@ class PelicanJson(collections.MutableMapping):
 
     A PelicanJson object is a modified version of a Python dictionary, so
     you can use all of the normal dictionary methods, but it will mostly return
-    nested results (which means you will often duplicate 'keys')::
+    nested results (which means you will often get duplicate 'keys')::
 
        >>> list(pelican.keys())
        ['links', 'attributes', 'href']
 
-    Ohter useful methods include `convert` and `serialize` for turning the
+    Other useful methods include `convert` and `serialize` for turning the
     object back into a plain Python dictionary and for returning a JSON dump,
     respectively::
 
@@ -124,16 +124,16 @@ class PelicanJson(collections.MutableMapping):
     def __iter__(self):
         """Iterates through the entire tree and returns all nested keys.
         """
-        # for k, v in self.store.items():
-        #     yield k
-        #     if type(v) == type(self):
-        #         yield from iter(v)
-        #     elif type(v) == list:
-        #         for item in v:
-        #             if type(item) == type(self):
-        #                 yield from iter(v)
-        for k, v in self.items():
+        for k, v in self.store.items():
             yield k
+            if type(v) == type(self):
+                yield from iter(v)
+            elif type(v) == list:
+                for item in v:
+                    if type(item) == type(self):
+                        yield from iter(item)
+        # for k, v in self.items():
+        #     yield k
 
     def items(self, path=None):
         """Yields path-value pairs from throughout the entire tree.
@@ -167,7 +167,7 @@ class PelicanJson(collections.MutableMapping):
 
                         yield from list_item.enumerate(path=list_path)
                     else:
-                        yield current_path, list_item
+                        yield list_path, list_item
             else:
                 yield current_path, v
 
@@ -233,11 +233,11 @@ class PelicanJson(collections.MutableMapping):
     def get_nested_value(self, path):
         """Retrieves nested value at the end of a path.
         """
-        def valgetter(data, key):
-            if len(path) <= 1:
-                return data[key]
+        def valgetter(data, keys):
+            if len(keys) <= 1:
+                return data[keys[0]]
             else:
-                key, *keys = path
+                key, *keys = keys
                 return valgetter(data[key], keys)
 
         return valgetter(self.store, path)
