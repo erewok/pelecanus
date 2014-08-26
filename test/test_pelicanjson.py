@@ -19,12 +19,16 @@ class TestDictIntegrity(TestCase):
         test_pelican = PelicanJson(self.data['items'][0])
         self.assertTrue(isinstance(test_pelican['attributes'],
                                    PelicanJson))
+        self.assertTrue(isinstance(test_pelican['links'],
+                                   PelicanJson))
         self.assertTrue(isinstance(test_pelican['attributes']['tags'],
                                    list))
 
     def test_convert(self):
         test_pelican = PelicanJson(self.data)
         self.assertEqual(test_pelican.convert(), self.data)
+        self.assertTrue(isinstance(test_pelican.convert(),
+                                   dict))
 
     def test_serialize(self):
         test_pelican = PelicanJson(self.data)
@@ -94,12 +98,6 @@ class TestPelicanMethods(TestCase):
 
     def test_values(self):
         self.fail('values test not implemented')
-
-    def test_convert(self):
-        self.fail('convert test not implemented')
-
-    def test_serialize(self):
-        self.fail('serialize test not implemented')
 
     def test_count_key(self):
         test_pelican = PelicanJson(self.item)
