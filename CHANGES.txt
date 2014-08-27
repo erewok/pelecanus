@@ -1,3 +1,5 @@
+v0.2.0 -- Made changes to various methods in PelicanJson. Completed unittests.
+
 v0.1.5 -- Fixed `enumerate` method
 
 v0.1.0 -- Initial release

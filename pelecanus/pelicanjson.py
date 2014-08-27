@@ -11,9 +11,6 @@ There are limitations, however: no JSON structure that has keys deeper
 than Python's recursion limit (default: 1000 stack frames) will work.
 
 In addition, a JSON object that is a top-level array won't work.
-
-Otherwise, there may be some things in here that will make your job dealing
-with nested JSON easier.
 """
 import copy
 import json
@@ -98,7 +95,7 @@ class PelicanJson(collections.MutableMapping):
     def __contains__(self, searchkey):
         for key in iter(self):
             if key == searchkey:
-                return key
+                return True
         return False
 
     def __repr__(self):
@@ -169,6 +166,12 @@ class PelicanJson(collections.MutableMapping):
             else:
                 yield current_path, v
 
+    def paths(self):
+        """Uses enumerate to yield paths only
+        """
+        for path, _ in self.enumerate():
+            yield path
+
     def keys(self):
         """Generator that iterates through the keys of the nested object same as
         `__iter__()`
@@ -180,7 +183,7 @@ class PelicanJson(collections.MutableMapping):
         """Generator that returns values-only for the object.
         """
         # Rewrite in terms of `enumerate`
-        yield from (v for k, v in self.items())
+        yield from (v for k, v in self.enumerate())
 
     def convert(self):
         """Converts the object back to a native Python object (a nested dictionary)
@@ -213,20 +216,62 @@ class PelicanJson(collections.MutableMapping):
         """
         return sum(1 for k, v in self.items() if k == key)
 
-    def searchkey(self, searchkey):
+    def search_key(self, searchkey, path=None):
         """Generator that returns the (various) paths for a particular key
         """
-        for path, value in self.enumerate():
-            *path, key = path
-            if key == searchkey:
-                yield path
+        if path is None:
+            path = []
+        for k, v in self.store.items():
+            current_path = path[:]
+            current_path.append(k)
+            if k == searchkey:
+                yield current_path
 
-    def searchvalue(self, searchval):
+            if type(v) == type(self):
+                yield from v.search_key(searchkey,
+                                       path=current_path)
+            elif type(v) == list:
+                for idx, list_item in enumerate(v):
+                    list_path = current_path[:]
+                    list_path.append(idx)
+                    if type(list_item) == type(self):
+                        yield from list_item.search_key(searchkey,
+                                                        path=list_path)
+
+    def search_value(self, searchval, path=None):
         """Generator that returns the (various) paths for a particular value
         """
-        for path, value in self.enumerate():
-            if value == searchval:
-                yield path
+        if path is None:
+            path = []
+        for k, v in self.store.items():
+            current_path = path[:]
+            current_path.append(k)
+            if v == searchval:
+                yield current_path
+
+            if type(v) == type(self):
+                yield from v.search_value(searchval,
+                                          path=current_path)
+            elif type(v) == list:
+                for idx, list_item in enumerate(v):
+                    list_path = current_path[:]
+                    list_path.append(idx)
+                    if type(list_item) == type(self):
+                        yield from list_item.search_value(searchval,
+                                                          path=list_path)
+                    elif list_item == searchval:
+                        yield list_path
+
+    def pluck(self, key, value):
+        """Returns the _parent_ object that contains a particular key-value pair
+        """
+        for path in self.search_key(key):
+            if self.get_nested_value(path) == value:
+                if len(path) > 1:
+                    path = path[:-1]
+                    yield self.get_nested_value(path)
+                else:
+                    yield self
 
     def get_nested_value(self, path):
         """Retrieves nested value at the end of a path.
@@ -248,24 +293,13 @@ class PelicanJson(collections.MutableMapping):
             editable = self.get_nested_value(keys)
             editable[last_key] = newvalue
         else:
-            self.store[path] = newvalue
-
-    def pluck(self, key, value):
-        """Returns the _parent_ object that contains a particular key-value pair
-        """
-        for path in self.keypath(key):
-            if self.get_value(path) == value:
-                if len(path) > 1:
-                    path = path[:-1]
-                    yield self.get_nested_value(path)
-                else:
-                    yield self.store
+            key, *_ = path
+            self.store[key] = newvalue
 
     def find_and_replace(self, matchval, replaceval):
         """Will replace all matched values with the replacement value
         passed in and will yield the paths associated with the
         changed values.
         """
-        for path in self.searchvalue(matchval):
+        for path in self.search_value(matchval):
             self.set_nested_value(path, replaceval)
-            yield path
