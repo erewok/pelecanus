@@ -15,6 +15,8 @@ Otherwise, there may be some things in here that will, hopefully, make your job 
 ## How to Use
 `pelecanus` offers `PelicanJson` objects, which are nested JSON objects that provide a few methods to make it easier to navigate and edit nested JSON objects.
 
+
+#### Enumerate
 To create a PelicanJson object, you can pass the constructor a Python dictionary created from a JSON dump (or a simple Python dictionary that could be a valid JSON object):
 
 ```python
@@ -23,21 +25,24 @@ To create a PelicanJson object, you can pass the constructor a Python dictionary
 >>> pelican = PelicanJson(content)
 ```
 
-Once you have a `PelicanJson` object, you can find all the nested paths and the values located at those paths using the `enumerate` method:
+Once you have a `PelicanJson` object, probably one of the most useful things to do is to find all the nested paths and the values located at those paths. The `enumerate` method has been provided for this purpose:
 
 ```python
 >>> for item in pelican.enumerate():
 ...   print(item)
 (['links', alternate', 0, 'href'], 'somelink')
+...
 ```
 
-This method like most of those in a `PelicanJson` object returns a generator. If you want just the paths and not their associated values, use the `paths` method:
+The integers that appear in the nested path actually represent list indices, so `['links', alternate', 0, 'href']` actually represents a dictionary with a key `links` and another dictionary associated with that key, which contains a key `alternate`, which contains a list, the first item of which is a dictionary containing the key `href`. `enumerate`, like most methods in a `PelicanJson` object, returns a generator. If you want just the paths and not their associated values, use the `paths` method:
 
 ```python
 >>> for item in pelican.paths():
 ...   print(item)
 ['links', alternate', 0, 'href']
 ```
+
+#### Getting and Setting Values
 
 You can also get back the value from a nested path:
 
@@ -54,12 +59,14 @@ If you want to change a nested value, you can use the `set_nested_value` method:
 'newvalue'
 ```
 
-A PelicanJson object is a modified version of a Python dictionary, so you can use all of the normal dictionary methods, but it will mostly return nested results (which means you will often get duplicate 'keys'):
+A `PelicanJson` object is a modified version of a Python dictionary, so you can use all of the normal dictionary methods, but it will mostly return nested results (which means you will often get duplicate `keys`):
 
 ```python
 >>> list(pelican.keys())
 ['links', 'attributes', 'href', ...]
 ```
+
+#### Getting a plain dictionary back or JSON back
 
 Other useful methods include `convert` and `serialize` for turning the object back into a plain Python dictionary and for returning a JSON dump, respectively:
 
@@ -71,7 +78,10 @@ True
 True
 ```
 
-You can also use the methods `search_key` and `search_value` in order to find all the paths that lead to keys or values you are searching for. Finally, `pluck` is for retrieving a dictionary containing a particular key-value pair:
+
+#### Searching Keys and Values
+
+You can also use the methods `search_key` and `search_value` in order to find all the paths that lead to keys or values you are searching for. In addition, `pluck` is for retrieving a dictionary containing a particular key-value pair:
 
 ```python
 >>> book = {'ISBN:9780804720687': {'preview': 'noview', 'bib_key': 'ISBN:9780804720687', 'preview_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'info_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'thumbnail_url': 'https://covers.openlibrary.org/b/id/577352-S.jpg'}}
@@ -79,12 +89,14 @@ You can also use the methods `search_key` and `search_value` in order to find al
 >>> for path in pelican.search_key('preview'):
 ...   print(path)
 ['ISBN:9780804720687', 'preview']
->>> for path in pelican.search_value('ISBN:9780804720687'):
+>>> for path in pelican.search_value('https://covers.openlibrary.org/b/id/577352-S.jpg'):
 ...  print(path)
-['ISBN:9780804720687', 'bib_key']
+['ISBN:9780804720687', 'thumbnail_url']
 >>> list(pelican.pluck('preview', 'noview'))
-[<PelicanJson: {'thumbnail_url': 'https://covers.openlibrary.org/b/id/577352-S.jpg', 'bib_key': 'ISBN:9780804720687', 'preview_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'info_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'preview': 'noview'}>]
+[<PelicanJson: {'preview': 'noview', 'thumbnail_url': 'https://covers.openlibrary.org/b/id/577352-S.jpg', 'bib_key': 'ISBN:9780804720687', 'preview_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'info_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides'}>]
 ```
+
+#### Find and Replace
 
 Finally, there is also a `find_and_replace` method which searches for a particular value and replaces it with a passed-in replacement value:
 
@@ -93,6 +105,8 @@ Finally, there is also a `find_and_replace` method which searches for a particul
 >>> pelican.get_nested_value(['ISBN:9780804720687', 'bib_key'])
 'NEW ISBN'
 ```
+
+This can, of course, be dangerous, so use with caution.
 
 # TO DO
 
