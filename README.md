@@ -1,6 +1,6 @@
-# pelecanus | ![](https://travis-ci.org/pellagic-puffbomb/pelecanus.svg?branch=master)
+# pelecanus ![](https://travis-ci.org/pellagic-puffbomb/pelecanus.svg?branch=master)
 
-Pelecanus: a Python3 application for navigating and editing nested JSON, named 'pelecanus' after Pelecanus occidentalis, the [brown Pelican of California and the Eastern Pacific](http://www.nps.gov/chis/naturescience/brown-pelican.htm), which is a wonderful bird and which deserves to have something named after it but also named such because I got tired of writing "NestedJson". ![](https://flic.kr/p/m51Qd3)
+Pelecanus: a Python3 application for navigating and editing nested JSON, named 'pelecanus' after Pelecanus occidentalis, the [brown Pelican of California and the Eastern Pacific](http://www.nps.gov/chis/naturescience/brown-pelican.htm), which is a wonderful bird and which deserves to have something named after it but also named such because I got tired of writing "NestedJson".
 
 This application has been built-for and tested on Python3.3 and Python3.4 (it makes ample of use of `yield from`).
 
@@ -97,3 +97,5 @@ Finally, there is also a `find_and_replace` method which searches for a particul
 # TO DO
 
 * Separate all methods out of `PelicanJson` class for use on free-floating Python dictionaries that come from netsed JSON objects.
+
+![](http://i.imgur.com/f6bG1XN.jpg)
