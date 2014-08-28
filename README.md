@@ -15,8 +15,6 @@ Otherwise, there may be some things in here that will, hopefully, make your job 
 ## How to Use
 `pelecanus` offers `PelicanJson` objects, which are nested JSON objects that provide a few methods to make it easier to navigate and edit nested JSON objects.
 
-
-#### Enumerate
 To create a PelicanJson object, you can pass the constructor a Python dictionary created from a JSON dump (or a simple Python dictionary that could be a valid JSON object):
 
 ```python
@@ -24,6 +22,8 @@ To create a PelicanJson object, you can pass the constructor a Python dictionary
 >>> from pelecanus import PelicanJson
 >>> pelican = PelicanJson(content)
 ```
+
+#### Enumerate
 
 Once you have a `PelicanJson` object, probably one of the most useful things to do is to find all the nested paths and the values located at those paths. The `enumerate` method has been provided for this purpose:
 
@@ -34,7 +34,13 @@ Once you have a `PelicanJson` object, probably one of the most useful things to 
 ...
 ```
 
-The integers that appear in the nested path actually represent list indices, so `['links', alternate', 0, 'href']` actually represents a dictionary with a key `links` and another dictionary associated with that key, which contains a key `alternate`, which contains a list, the first item of which is a dictionary containing the key `href`. `enumerate`, like most methods in a `PelicanJson` object, returns a generator. If you want just the paths and not their associated values, use the `paths` method:
+The integers that appear in the nested path actually represent list indices, so `['links', alternate', 0, 'href']` actually represents:
+1. A dictionary with a key `links` and 
+2. another dictionary associated with that key, which contains 
+3. a key `alternate`, which contains a list, 
+4. the first item of which is a dictionary containing the key `href`. 
+
+`enumerate`, like most methods in a `PelicanJson` object, returns a generator. If you want just the paths and not their associated values, use the `paths` method:
 
 ```python
 >>> for item in pelican.paths():
@@ -44,7 +50,7 @@ The integers that appear in the nested path actually represent list indices, so 
 
 #### Getting and Setting Values
 
-You can also get back the value from a nested path:
+You can also get back the value from a nested path using `get_nested_value`:
 
 ```python
 >>> pelican.get_nested_value(['links', alternate', 0, 'href'])
