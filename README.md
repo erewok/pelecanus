@@ -13,7 +13,14 @@ There are limitations, however: no JSON structure that has keys deeper than Pyth
 Otherwise, there may be some things in here that will, hopefully, make your job dealing with nested JSON easier.
 
 ## How to Use
-`pelecanus` offers `PelicanJson` objects, which are nested JSON objects that provide a few methods to make it easier to navigate and edit nested JSON objects.
+
+To install for Python3.3+, simply do:
+
+```
+$ pip install pelecanus
+```
+
+`pelecanus` offers `PelicanJson` objects, which are nested dictionaries created from valid JSON objects, and `PelicanJson` objects provide a few methods to make it easier to navigate and edit nested JSON objects.
 
 To create a PelicanJson object, you can pass the constructor a Python dictionary created from a JSON dump (or a simple Python dictionary that could be a valid JSON object):
 
@@ -34,11 +41,11 @@ Once you have a `PelicanJson` object, probably one of the most useful things to 
 ...
 ```
 
-The integers that appear in the nested path actually represent list indices, so `['links', alternate', 0, 'href']` actually represents:
-1. A dictionary with a key `links` and 
-2. another dictionary associated with that key, which contains 
-3. a key `alternate`, which contains a list, 
-4. the first item of which is a dictionary containing the key `href`. 
+The integers that appear in the nested path often may represent list indices, so `['links', alternate', 0, 'href']` actually represents:
+1. A dictionary with a key `links`, which points to
+2. Another dictionary which contains a key 'alternate',
+3. Which contains a list, the first item of which
+4. Is a dictionary containing the key `href`. 
 
 `enumerate`, like most methods in a `PelicanJson` object, returns a generator. If you want just the paths and not their associated values, use the `paths` method:
 
@@ -50,7 +57,7 @@ The integers that appear in the nested path actually represent list indices, so 
 
 #### Getting and Setting Values
 
-You can also get back the value from a nested path using `get_nested_value`:
+You can retrieve the value from a nested path using `get_nested_value`:
 
 ```python
 >>> pelican.get_nested_value(['links', alternate', 0, 'href'])
@@ -72,7 +79,7 @@ A `PelicanJson` object is a modified version of a Python dictionary, so you can 
 ['links', 'attributes', 'href', ...]
 ```
 
-#### Getting a plain dictionary back or JSON back
+#### Turning it back into a plain dictionary or JSON
 
 Other useful methods include `convert` and `serialize` for turning the object back into a plain Python dictionary and for returning a JSON dump, respectively:
 
