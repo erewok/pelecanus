@@ -71,12 +71,36 @@ If you want to change a nested value, you can use the `set_nested_value` method:
 'newvalue'
 ```
 
+#### Keys, Values, Items, etc.
+
 A `PelicanJson` object is a modified version of a Python dictionary, so you can use all of the normal dictionary methods, but it will mostly return nested results (which means you will often get duplicate `keys`):
 
 ```python
 >>> list(pelican.keys())
 ['links', 'attributes', 'href', ...]
 ```
+
+`values` is only going to return values that exist at endpoints, at the inside-most points of all nested objects:
+
+```python
+>>> list(pelican.values())
+['somelink']
+```
+
+While `items` attempts to do double-duty, returning each key in the tree and its corresponding value:
+
+```python
+>>> list(pelican.items())
+[('links', <PelicanJson: {'attributes': [<PelicanJson: {'href': 'somelink'}>]}>), ('attributes', [<PelicanJson: {'href': 'somelink'}>]), ('href', 'somelink')]
+```
+
+You can also use `in` to see if a key is somewhere inside the dictionary (even if it's a nested key):
+
+```python
+>>> 'attributes' in pelican
+True
+```
+
 
 #### Turning it back into a plain dictionary or JSON
 
@@ -93,7 +117,7 @@ True
 
 #### Searching Keys and Values
 
-You can also use the methods `search_key` and `search_value` in order to find all the paths that lead to keys or values you are searching for. 
+You can also use the methods `search_key` and `search_value` in order to find all the paths that lead to keys or values you are searching for (data comes from the [Open Library API](https://openlibrary.org/developers/api)). 
 
 ```python
 >>> book = {'ISBN:9780804720687': {'preview': 'noview', 'bib_key': 'ISBN:9780804720687', 'preview_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'info_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'thumbnail_url': 'https://covers.openlibrary.org/b/id/577352-S.jpg'}}

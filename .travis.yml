@@ -7,5 +7,8 @@ env:
 install:
     - "pip install coverage"
     - "pip install nose"
+    - "pip install coveralls"
 script:
     - "nosetests --with-coverage --cover-package=pelecanus"
+after_success:
+  - coveralls
