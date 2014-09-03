@@ -286,7 +286,8 @@ class PelicanJson(collections.MutableMapping):
         return valgetter(self.store, path)
 
     def set_nested_value(self, path, newvalue):
-        """Sets a nested_value to a new value using the path provided
+        """Sets a nested_value to a new value using the path provided.
+        Path must already exist for path to be set.
         """
         *keys, last_key = path
         if len(keys) > 0:
@@ -295,6 +296,20 @@ class PelicanJson(collections.MutableMapping):
         else:
             key, *_ = path
             self.store[key] = newvalue
+
+    def update_from_pelican(self, newdata):
+        """Blends the data passed in to the PelicanJson dict, creating paths
+        where necessary
+        """
+        for path, value in newdata.enumerate():
+            try:
+                self.set_nested_value(path, value)
+            except (IndexError, KeyError):
+                start, *rest = path
+                if start in self.store:
+                    self.update(newdata[start])
+                else:
+                    self.store[start] = newdata[start]
 
     def find_and_replace(self, matchval, replaceval):
         """Will replace all matched values with the replacement value
