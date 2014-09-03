@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 from unittest import TestCase
 
 from pelecanus import PelicanJson

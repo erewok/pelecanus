@@ -286,7 +286,8 @@ class PelicanJson(collections.MutableMapping):
         return valgetter(self.store, path)
 
     def set_nested_value(self, path, newvalue):
-        """Sets a nested_value to a new value using the path provided
+        """Sets a nested_value to a new value using the path provided.
+        Path must already exist for path to be set.
         """
         *keys, last_key = path
         if len(keys) > 0:

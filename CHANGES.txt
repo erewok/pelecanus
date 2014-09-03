@@ -1,3 +1,7 @@
+v0.3.1 -- update_from_pelican method failed to work as advertised. Needed to be more opinionated. Let users build it if necessary.
+
+v0.3.0 -- Added update_from_pelican method for adding values to object using new object.
+
 v0.2.0 -- Made changes to various methods in PelicanJson. Completed unittests.
 
 v0.1.5 -- Fixed `enumerate` method
