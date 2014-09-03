@@ -297,20 +297,6 @@ class PelicanJson(collections.MutableMapping):
             key, *_ = path
             self.store[key] = newvalue
 
-    def update_from_pelican(self, newdata):
-        """Blends the data passed in to the PelicanJson dict, creating paths
-        where necessary
-        """
-        for path, value in newdata.enumerate():
-            try:
-                self.set_nested_value(path, value)
-            except (IndexError, KeyError):
-                start, *rest = path
-                if start in self.store:
-                    self.update(newdata[start])
-                else:
-                    self.store[start] = newdata[start]
-
     def find_and_replace(self, matchval, replaceval):
         """Will replace all matched values with the replacement value
         passed in and will yield the paths associated with the

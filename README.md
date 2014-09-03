@@ -71,21 +71,6 @@ If you want to change a nested value, you can use the `set_nested_value` method:
 'newvalue'
 ```
 
-#### Update from another object
-
-You can use one `PelicanJson` to update another one. All paths and values will be changed if present to the new values while new paths will be created:
-
-```python
->>> newcontent = {'somekey': {'somenestedkey': 'somevalue'}, 'links': {'attributes': [{'href': 'somelink'}, {'newkey': 'newvalue'}], 'alternatekey': 'alternatevalue'}}
->>> newpelican = PelicanJson(newcontent)
->>> pelican.update_from_pelican(newdata)
->>> pelican.convert()
-{'somekey': {'somenestedkey': 'somevalue'}, 'links': {'attributes': [{'href': 'somelink'}, {'newkey': 'newvalue'}], 'alternatekey': 'alternatevalue'}}
-```
-
-This will find the lowest-level object with a key present and it will set the new value for that key inside that object. In other words, this can overwrite lists results inside nested objects.
-
-
 #### Keys, Values, Items, etc.
 
 A `PelicanJson` object is a modified version of a Python dictionary, so you can use all of the normal dictionary methods, but it will mostly return nested results (which means you will often get duplicate `keys`):

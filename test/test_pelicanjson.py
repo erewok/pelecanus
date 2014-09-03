@@ -304,34 +304,6 @@ class TestPelicanMethods(TestCase):
         pelican_item.set_nested_value(['href'], None)
         self.assertEqual(pelican_item['href'], None)
 
-    def test_update_from_pelican(self):
-        test_update_one = PelicanJson(self.item)
-        # aside from dictionary inserts, we want to test
-        # whether lists will be appended as well
-        test_update_one['links']['navigation'].append({'test': ['NEW'],
-                                                       'href': 'http://127.0.0.1:8080/docs?guid=someGUID'})
-        test_update_two = PelicanJson(self.book)
-        test_pelican = PelicanJson(self.pelecanus_occidentalis)
-        copy_pelican = copy.deepcopy(test_pelican)
-        test_pelican.update_from_pelican(test_update_one)
-        test_pelican.update_from_pelican(test_update_two)
-
-        for path, value in test_update_one.enumerate():
-            self.assertEqual(test_pelican.get_nested_value(path),
-                             value)
-        for path, value in test_update_two.enumerate():
-            self.assertEqual(test_pelican.get_nested_value(path),
-                             value)
-        self.assertEqual(test_pelican.get_nested_value(['links',
-                                                        'navigation',
-                                                        1,
-                                                        'test']),
-                         ['NEW'])
-
-        # We are also going to test that all original paths are still present
-        for path in copy_pelican.paths():
-            self.assertTrue(str(test_pelican.get_nested_value(path)))
-
     def test_find_and_replace(self):
         test_pelican = PelicanJson(self.pelecanus_occidentalis)
         test_pelican.find_and_replace('Pelecanus occidentalis',
