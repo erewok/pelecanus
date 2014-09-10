@@ -1,3 +1,5 @@
+v0.3.2 -- Updated documentation and docstrings.
+
 v0.3.1 -- update_from_pelican method failed to work as advertised. Needed to be more opinionated. Let users build it if necessary.
 
 v0.3.0 -- Added update_from_pelican method for adding values to object using new object.
