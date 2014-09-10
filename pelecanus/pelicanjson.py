@@ -119,7 +119,7 @@ class PelicanJson(collections.MutableMapping):
         return sum(1 for k in iter(self))
 
     def __iter__(self):
-        """Iterates through the entire tree and returns all nested keys.
+        """Iterates through the entire tree and yield all nested keys.
         """
         for k, v in self.store.items():
             yield k
@@ -173,16 +173,13 @@ class PelicanJson(collections.MutableMapping):
             yield path
 
     def keys(self):
-        """Generator that iterates through the keys of the nested object same as
-        `__iter__()`
+        """Generator that iterates through the keys of the nested object.
         """
-        # Rewrite in terms of `enumerate`
         yield from iter(self)
 
     def values(self):
         """Generator that returns values-only for the object.
         """
-        # Rewrite in terms of `enumerate`
         yield from (v for k, v in self.enumerate())
 
     def convert(self):
