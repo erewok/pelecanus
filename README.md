@@ -73,7 +73,7 @@ If you want to change a nested value, you can use the `set_nested_value` method:
 
 #### Keys, Values, Items, etc.
 
-A `PelicanJson` object is a modified version of a Python dictionary, so you can use all of the normal dictionary methods, but it will mostly return nested results (which means you will often get duplicate `keys`):
+A `PelicanJson` object is a modified version of a Python dictionary, so you can use all of the normal dictionary methods, but it will mostly return nested results (which means you will often get duplicate `keys`). The length of the object too will be based on all the nested keys present:
 
 ```python
 >>> list(pelican.keys())
@@ -96,7 +96,7 @@ While `items` attempts to do double-duty, returning each key in the tree and its
 [('links', <PelicanJson: {'attributes': [<PelicanJson: {'href': 'somelink'}>]}>), ('attributes', [<PelicanJson: {'href': 'somelink'}>]), ('href', 'somelink')]
 ```
 
-You can also use `in` to see if a key is somewhere inside the dictionary (even if it's a nested key) and length to see how many keys are present:
+You can also use `in` to see if a key is somewhere inside the dictionary (even if it's a nested key):
 
 ```python
 >>> 'attributes' in pelican
