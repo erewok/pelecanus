@@ -10,11 +10,18 @@ structure.
 There are limitations, however: no JSON structure that has keys deeper
 than Python's recursion limit (default: 1000 stack frames) will work.
 
-In addition, a JSON object that is a top-level array won't work.
+In addition, a JSON object that is a top-level array won't work, but I don't
+actually think that's allowed, per JSON spec.
 """
 import copy
 import json
 import collections
+
+from .toolbox import backfill_append
+from .toolbox import new_json_from_path
+
+from .exceptions import BadPath
+from .exceptions import EmptyPath
 
 
 class PelicanJson(collections.MutableMapping):
@@ -74,14 +81,27 @@ class PelicanJson(collections.MutableMapping):
         self.store = dict()
         self.update(dict(*args, **kwargs))
         for key, value in self.store.items():
-            if isinstance(value, dict):
-                self.store[key] = PelicanJson(value)
-            elif isinstance(value, list):
-                self.store[key] = self._update_from_list(value)
-            else:
-                self.store[key] = value
+            # __setitem__ does the heavy-lifting here
+            self.store[key] = value
+
+    def __getitem__(self, key):
+        return self.store[key]
+
+    def __setitem__(self, key, value):
+        if isinstance(value, dict):
+            self.store[key] = PelicanJson(value)
+        elif isinstance(value, list):
+            self.store[key] = self._update_from_list(value)
+        else:
+            self.store[key] = value
+
+    def __delitem__(self, key):
+        del self.store[key]
 
     def _update_from_list(self, somelist):
+        """Used to parse list objects for nested dictionaries and turn
+        those internal dictionaries into PelicanJson objects.
+        """
         temp_list = []
         for item in somelist:
             if isinstance(item, dict):
@@ -92,34 +112,21 @@ class PelicanJson(collections.MutableMapping):
                 temp_list.append(item)
         return temp_list
 
-    def __contains__(self, searchkey):
-        for key in iter(self):
-            if key == searchkey:
-                return True
-        return False
-
-    def __repr__(self):
-        return "<PelicanJson: {}>".format(str(self.store))
-
-    def __str__(self):
-        return str(self.store)
-
-    def __getitem__(self, key):
-        return self.store[key]
-
-    def __setitem__(self, key, value):
-        self.store[key] = value
-
-    def __delitem__(self, key):
-        del self.store[key]
-
     def __len__(self):
         """Counts all keys and subkeys nested in the object.
         """
         return sum(1 for k in iter(self))
 
+    def __contains__(self, searchkey):
+        """Returns True if key is somewhere inside the object.
+        """
+        for key in iter(self):
+            if key == searchkey:
+                return True
+        return False
+
     def __iter__(self):
-        """Iterates through the entire tree and yield all nested keys.
+        """Iterates through the entire tree and yields all nested keys.
         """
         for k, v in self.store.items():
             yield k
@@ -129,6 +136,12 @@ class PelicanJson(collections.MutableMapping):
                 for item in v:
                     if type(item) == type(self):
                         yield from iter(item)
+
+    def __repr__(self):
+        return "<PelicanJson: {}>".format(str(self.store))
+
+    def __str__(self):
+        return str(self.convert())
 
     def items(self, path=None):
         """Yields path-value pairs from throughout the entire tree.
@@ -184,7 +197,8 @@ class PelicanJson(collections.MutableMapping):
 
     def convert(self):
         """Converts the object back to a native Python object (a nested dictionary)
-        that is equal to the object passed in.
+        that is equal to object passed in or, if modified, the dict version of
+        self.store.
         """
         data = {}
         for k, v in self.store.items():
@@ -212,6 +226,55 @@ class PelicanJson(collections.MutableMapping):
         """Returns a sum of the number of times a particular key appears in the object.
         """
         return sum(1 for k, v in self.items() if k == key)
+
+    def create_path(self, path, newvalue):
+        """Creates a new `path` set to `newvalue`.
+        """
+        def test_path(path):
+            try:
+                self.get_nested_value(path)
+                return True
+            except (IndexError, KeyError, TypeError):
+                return False
+        # The first element in the path needs to be a string so we can
+        # add it as a key to self.store. We raise KeyError if otherwise
+        if not isinstance(path[0], str) or len(path) == 0:
+            errmsg = "New PelicanJson path must start with an acceptable key"
+            errmsg += " (it must be a string). Bad path: {}"
+            raise BadPath(errmsg.format(str(path)))
+
+        # Now, let's take this path and figure out how much of it is already
+        # present in the object.
+        keys_present = path[:]
+        keys_missing = collections.deque()
+        while keys_present and not test_path(keys_present):
+            keys_missing.appendleft(keys_present.pop())
+
+        if keys_present:
+            # The following object could be any value really
+            edit_object = self.get_nested_value(keys_present)
+            if isinstance(edit_object, list):
+                # if list, we try to insert at the proper (missing) index
+                index, *rest = keys_missing
+                if not isinstance(index, int):
+                    errmsg = "Check path. List index must be integer: {}."
+                    raise IndexError(errmsg.format(index))
+                new_object = PelicanJson(new_json_from_path(rest, newvalue))
+                edited_list = backfill_append(edit_object, index, new_object)
+                self.set_nested_value(keys_present, edited_list)
+            elif isinstance(edit_object, PelicanJson):
+                new_object = new_json_from_path(keys_missing, newvalue)
+                edit_object.update(new_object)
+            else:
+                # This is the case where we are overwriting some random value
+                new_object = new_json_from_path(keys_missing, newvalue)
+                self.set_nested_value(keys_present, new_object)
+        else:
+            # No keys_present: top-level object
+            new_object = new_json_from_path(keys_missing, newvalue)
+            self.update(new_object)
+
+        return self
 
     def search_key(self, searchkey, path=None):
         """Generator that returns the (various) paths for a particular key
@@ -272,6 +335,9 @@ class PelicanJson(collections.MutableMapping):
 
     def get_nested_value(self, path):
         """Retrieves nested value at the end of a path.
+
+        Raises either IndexError or KeyError if any element of the path is
+        missing.
         """
         def valgetter(data, keys):
             if len(keys) <= 1:
@@ -280,16 +346,29 @@ class PelicanJson(collections.MutableMapping):
                 key, *keys = keys
                 return valgetter(data[key], keys)
 
-        return valgetter(self.store, path)
+        if isinstance(path, list) or isinstance(path, tuple):
+            if len(path) > 0:
+                return valgetter(self.store, path)
+            else:
+                raise EmptyPath("Path must have at least one element.")
+        else:
+            errmsg = "Path passed in is not a list or a tuple"
+            raise BadPath(errmsg.format(str(path)))
 
-    def set_nested_value(self, path, newvalue):
+    def set_nested_value(self, path, newvalue, force=False):
         """Sets a nested_value to a new value using the path provided.
         Path must already exist for path to be set.
         """
         *keys, last_key = path
         if len(keys) > 0:
-            editable = self.get_nested_value(keys)
-            editable[last_key] = newvalue
+            try:
+                editable = self.get_nested_value(keys)
+                editable[last_key] = newvalue
+            except (IndexError, KeyError, TypeError) as e:
+                if force:
+                    self.create_path(path, newvalue)
+                else:
+                    raise e
         else:
             key, *_ = path
             self.store[key] = newvalue

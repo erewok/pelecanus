@@ -8,8 +8,6 @@ This application has been built-for and tested on Python3.3 and Python3.4.
 
 Often, it's necessary to explore a JSON object without knowing precisely where things are (in the case of Hypermedia, for example). By creating a recursive data structure, we can facilitate such tasks as retrieving key-value pairs, iterating through the data structure, and searching for elements in the data structure.
 
-There are limitations, however: no JSON structure that has keys deeper than Python's recursion limit will work. In addition, a JSON object that is a top-level array won't work.
-
 ## How to Use
 
 To install for Python3.3+, simply do:
@@ -23,7 +21,7 @@ $ pip install pelecanus
 To create a PelicanJson object, you can pass the constructor a Python dictionary created from a JSON dump (or a simple Python dictionary that could be a valid JSON object):
 
 ```python
->>> content = {'links': {'attributes': [{'href': 'somelink'}]}}
+>>> content = {'links': {'alternate': [{'href': 'somelink'}]}}
 >>> from pelecanus import PelicanJson
 >>> pelican = PelicanJson(content)
 ```
@@ -39,7 +37,7 @@ Once you have a `PelicanJson` object, probably one of the most useful things to 
 ...
 ```
 
-In JSON, only strings may be used as keys [see JSON spec](http://json.org/), so the integers that appear in the nested path represent list indices. In this case, `['links', alternate', 0, 'href']` actually represents:
+In JSON, only strings may be used as keys [(see JSON spec)](http://json.org/), so the integers that appear in the nested path represent list indices. In this case, `['links', alternate', 0, 'href']` actually represents:
 
 1. A dictionary with a key `links`, which points to...
 2. Another dictionary which contains a key 'alternate', which contains...
@@ -70,6 +68,36 @@ If you want to change a nested value, you can use the `set_nested_value` method:
 >>> pelican.get_nested_value(['links', 'alternate', 0, 'href'])
 'newvalue'
 ```
+
+If you attempt to set a nested value for a path that does not exist, an exception will be raised:
+
+```python
+>>> pelican.set_nested_value(['links', 'BADKEY'], 'newvalue')
+Traceback (most recent call last):
+...
+KeyError: 'BADKEY'
+```
+
+However, you can create a new path and set it equal to a new value if you pass in `force=True` when you call `set_nested_value`:
+
+```python
+>>> pelican.set_nested_value(['links', 'BADKEY'], 'newvalue', force=True)
+>>> pelican.get_nested_value(['links', 'BADKEY'])
+'newvalue'
+```
+
+Because integers will *always* be interpreted as list-indices, this works for creating ad-hoc lists or adding elements to lists as well, but be advised of the behavior: when setting a new path, a `PelicanJson` object will back-fill any missing list indices with `None` (simliar to [assigning to a non-existent index in Ruby](http://www.ruby-doc.org/core-2.1.2/Array.html#method-i-5B-5D-3D)):
+
+```python
+>>> pelican.set_nested_value(['links', 'NewKey', 4, 'NewNestedKey'], 'LIST Example', force=True)
+>>> pelican.get_nested_value(['links', 'NewKey', 4, 'NewNestedKey'])
+'LIST EXAMPLE'
+>>> pelican.get_nested_value(['links', 'NewKey'])
+[None, None, None, None, {'NestedKey': 'LIST EXAMPLE'}]
+```
+
+In this example, the `PelicanJson` object saw the integer and realized this must be a list index. However, the list was missing, so it created the list and then created all of the items at indices *before* the missing the index, at which point it inserted the missing item, a new object with the key-value pair of `NewNestedKey` and `LIST EXAMPLE`. This could be kind of annoying, but the expected path is now present!
+
 
 #### Keys, Values, Items, etc.
 
