@@ -12,7 +12,7 @@ from pelecanus.exceptions import EmptyPath
 current_dir = os.path.abspath(os.path.dirname(__file__))
 fixture_dir = os.path.join(current_dir, 'fixtures')
 # Actual datasets
-data = os.path.join(fixture_dir, 'test_data.json')
+data = os.path.join(fixture_dir, 'datadoc.json')
 book = os.path.join(fixture_dir, 'book.json')
 ricketts = os.path.join(fixture_dir, 'ricketts.json')
 monterrey = os.path.join(fixture_dir, 'monterrey.json')
@@ -281,7 +281,7 @@ class TestPelicanMethods(TestCase):
             self.assertEqual(test_rickettsi.get_nested_value(path),
                              "NEWVALUE")
 
-    def test_create_path_in_list(self):
+    def test_create_path_new_object_inside_list(self):
         test_rickettsi = PelicanJson(self.ricketts)
         paths = [['query', 'pages', '1422396', 'images', 7, 'title'],
                  ['query', 'normalized', 10, 'NEW']]
@@ -297,6 +297,21 @@ class TestPelicanMethods(TestCase):
         self.assertEqual(len(test_rickettsi.get_nested_value(['query',
                                                               'normalized'])),
                          11)
+
+    def test_create_path_add_item_to_list(self):
+        test_item = PelicanJson(self.item)
+        paths = [['attributes', 'tags', 2],
+                 ['attributes', 'tags', 5]]
+        check_for_none = paths[1][:-1]
+        check_for_none.append(4)
+        test_item.create_path(paths[0], "New value inside list")
+        self.assertEqual(test_item.get_nested_value(paths[0]),
+                         "New value inside list")
+        test_item.create_path(paths[1], "New value inside list with None")
+        self.assertEqual(test_item.get_nested_value(paths[1]),
+                         "New value inside list with None")
+        self.assertEqual(test_item.get_nested_value(check_for_none),
+                         None)
 
     def test_create_path_raise_badpath(self):
         test_rickettsi = PelicanJson(self.ricketts)
@@ -338,9 +353,11 @@ class TestPelicanMethods(TestCase):
         self.assertEqual(list(test_monty.search_value('2014-08-25')),
                          [['results', 1, 'maxdate'],
                           ['results', 3, 'maxdate']])
+        npr_api_tag = [['attributes', 'tags', 0],
+                       ['items', 0, 'attributes', 'tags', 0]]
         pelican_item = PelicanJson(self.item)
-        self.assertEqual(next(pelican_item.search_value('Cove')),
-                         ['attributes', 'tags', 2])
+        for path in pelican_item.search_value('npr_api'):
+            self.assertIn(path, npr_api_tag)
 
     def test_pluck(self):
         answer = PelicanJson({'to': 'Pelecanus occidentalis',
@@ -353,13 +370,13 @@ class TestPelicanMethods(TestCase):
                          next(test_pelican.pluck('from',
                                                  'Pelecanus_occidentalis')))
         pelican_item = PelicanJson(self.item)
-        self.assertEqual(pelican_item,
-                         next(pelican_item.pluck('version', '1.0')))
+        self.assertEqual(pelican_item['attributes'],
+                         next(pelican_item.pluck('byline', 'Emily Reddy')))
 
     def test_get_nested_value(self):
         pelican_item = PelicanJson(self.item)
-        answer = pelican_item.get_nested_value(['attributes', 'tags', 2])
-        self.assertEqual(answer, 'Cove')
+        answer = pelican_item.get_nested_value(['attributes', 'tags', 0])
+        self.assertEqual(answer, 'npr_api')
         test_monty = PelicanJson(self.monterrey)
         answers = [('gov.noaa.ncdc:C00822', ['results', 7, 'uid']),
                    ('gov.noaa.ncdc:C00040', ['results', 0, 'uid'])]
@@ -438,11 +455,12 @@ class TestPelicanMethods(TestCase):
             for path in index_error_paths:
                 test_rickettsi.set_nested_value(path, "Shouldn't Work")
 
-    def test_set_nested_value_force(self):
-        # Attempt to set paths that previously raised:
-        # IndexError, KeyError, TypeError
+    # Attempt to set paths that previously raised: IndexError, KeyError,
+    # TypeError
+    def test_set_nested_value_force_key_error(self):
         test_rickettsi = PelicanJson(self.ricketts)
         success_msg = "Should now work"
+        # KeyErrors overidden
         key_error_paths = [['unknownKey', 'unknownKey2'],
                            ['query-continue', 'unknownKey']]
         for path in key_error_paths:
@@ -452,15 +470,21 @@ class TestPelicanMethods(TestCase):
             self.assertEqual(test_rickettsi.get_nested_value(path),
                              success_msg)
 
+    def test_set_nested_value_force_type_error(self):
+        test_rickettsi = PelicanJson(self.ricketts)
+        success_msg = "Should now work"
         # TypeErrors overridden: path created
         type_error_path = ['query-continue', 'extlinks',
                            'eloffset', 'newdict-with-key']
         test_rickettsi.set_nested_value(type_error_path,
                                         success_msg,
                                         force=True)
-        self.assertEqual(test_rickettsi.get_nested_value(path),
+        self.assertEqual(test_rickettsi.get_nested_value(type_error_path),
                          success_msg)
 
+    def test_set_nested_value_force_previous_index_error(self):
+        test_rickettsi = PelicanJson(self.ricketts)
+        success_msg = "Should now work"
         # IndexErrors overridden: paths created
         index_error_paths = [['query', 'normalized', 1, 'from'],
                              ['query', 'normalized', 1, 'to']]
@@ -468,6 +492,16 @@ class TestPelicanMethods(TestCase):
             test_rickettsi.set_nested_value(path, success_msg, force=True)
             self.assertEqual(test_rickettsi.get_nested_value(path),
                              success_msg)
+
+    def test_set_nested_value_force_add_to_list(self):
+        path = ['attributes', 'tags', 4]
+        test_pelican = PelicanJson(self.item)
+        test_pelican.set_nested_value(path, 'New Tag', force=True)
+        new_tag = test_pelican.get_nested_value(path)
+        self.assertEqual(new_tag, 'New Tag')
+        none_placeholder = ['attributes', 'tags', 3]
+        self.assertEqual(test_pelican.get_nested_value(none_placeholder),
+                         None)
 
     def test_find_and_replace(self):
         test_pelican = PelicanJson(self.pelecanus_occidentalis)

@@ -259,7 +259,11 @@ class PelicanJson(collections.MutableMapping):
                 if not isinstance(index, int):
                     errmsg = "Check path. List index must be integer: {}."
                     raise IndexError(errmsg.format(index))
-                new_object = PelicanJson(new_json_from_path(rest, newvalue))
+                if rest:
+                    new_object = new_json_from_path(rest, newvalue)
+                    new_object = PelicanJson(new_object)
+                else:
+                    new_object = newvalue
                 edited_list = backfill_append(edit_object, index, new_object)
                 self.set_nested_value(keys_present, edited_list)
             elif isinstance(edit_object, PelicanJson):

@@ -184,9 +184,3 @@ Finally, there is also a `find_and_replace` method which searches for a particul
 ```
 
 This can, of course, be dangerous, so use with caution.
-
-# TO DO
-
-* Separate all methods out of `PelicanJson` class for use on free-floating Python dictionaries that come from netsed JSON objects.
-
-![](http://i.imgur.com/f6bG1XN.jpg)
