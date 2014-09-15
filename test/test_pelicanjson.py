@@ -308,6 +308,12 @@ class TestPelicanMethods(TestCase):
             test_rickettsi.create_path(bad_path[1], "VALUE")
             test_rickettsi.create_path(bad_path[2], "VALUE")
 
+    def test_create_path_raise_indexerror(self):
+        test_rickettsi = PelicanJson(self.ricketts)
+        bad_path = ['query', 'normalized', 'badkey', 'from']
+        with self.assertRaises(IndexError):
+            test_rickettsi.create_path(bad_path, "VALUE")
+
     def test_searchkey(self):
         test_rickettsi = PelicanJson(self.ricketts)
         paths = [['query', 'pages', '1422396', 'extlinks'] + [n, '*']

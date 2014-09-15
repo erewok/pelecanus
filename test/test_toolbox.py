@@ -137,6 +137,9 @@ class TestGeneratePaths(TestCase):
     def setUp(self):
         with open(book, 'r') as f:
             self.book = json.loads(f.read())
+        with open(data, 'r') as f:
+            rdata = json.loads(f.read())
+            self.item = rdata['items'][8]
 
     def test_generate_paths(self):
         book_paths = [['ISBN:9780804720687'],
@@ -147,6 +150,16 @@ class TestGeneratePaths(TestCase):
                       ['ISBN:9780804720687', 'preview']]
         for path in generate_paths(self.book):
             self.assertIn(path, book_paths)
+
+    def test_generate_paths_inside_list(self):
+        test_pelican = PelicanJson(self.item)
+        expected_paths = []
+        for path in test_pelican.search_value(''):
+            expected_paths.append(path)
+        for path in generate_paths(self.item):
+            value = get_nested_value(self.item, path)
+            if value == '':
+                self.assertIn(path, expected_paths)
 
 
 class TestGeneratePathsToKey(TestCase):
