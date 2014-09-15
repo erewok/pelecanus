@@ -1,3 +1,5 @@
+v0.4.0 -- Added `force` kwarg to set_nested_value and `create_path` method to PelicanJson object. Also added the `toolbox` module to the application with a handful of functions which may be used to get somewhat the same behavior as a PelicanJson object. 
+
 v0.3.2 -- Updated documentation and docstrings.
 
 v0.3.1 -- update_from_pelican method failed to work as advertised. Needed to be more opinionated. Let users build it if necessary.

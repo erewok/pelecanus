@@ -1,5 +1,6 @@
 """Free-floating versions of a number of methods associated with
-PelicanJson.
+PelicanJson. None of these functions create PelicanJson objects.
+Instead they operate on nested Python dictionaries.
 """
 from functools import wraps
 
@@ -88,7 +89,7 @@ def find_value(json_result, value, path=None):
             yield from find_value(item, value, path=current_path)
     else:
         if json_result == value:
-            return path
+            yield path
 
 
 def count_key(json_result, key):
@@ -109,20 +110,68 @@ def count_key(json_result, key):
        10
 
     """
-    def counter():
-        if isinstance(json_result, dict):
-            for k, v in json_result.items():
+    def counter(jresult):
+        if isinstance(jresult, dict):
+            for k, v in jresult.items():
                 if key == k:
                     yield 1
-                else:
-                    yield from count_key(v, key)
-        elif isinstance(json_result, list):
-            for item in json_result:
-                yield from count_key(item, key)
-    return sum(counter())
+                if isinstance(v, dict):
+                    yield from counter(v)
+                elif isinstance(v, list):
+                    for item in v:
+                        yield from counter(item)
+        elif isinstance(jresult, list):
+            for item in jresult:
+                yield from counter(item)
+        else:
+            yield 0
+    return sum(counter(json_result))
 
 
-def generate_paths(json_result, key, path=None):
+def generate_paths(json_result, path=None):
+    """Generator function for introspecting a nested JSON object and finding all
+    routes. Unlike `paths` for a `PelicanJson` object, which only yields paths
+    that lead directly to whole values (and not nested objects), the
+    `generate_paths` function also yields paths that lead to nested objects.
+
+    The values at these pathways can be returned with `get_nested_value'
+    or set with `set_nested_value`.
+
+    Args:
+
+       `json_result` -- JSON object
+
+    Returns:
+
+       Generator of lists that each represent a path inside the object.
+
+    Usage::
+
+       >>> list(generate_paths(some_nested_json))
+       [['key1, 'key2', key3']['another_object', 'another_key', 1']]
+
+    """
+    if path is None:
+        path = []
+    if isinstance(json_result, dict):
+        for k, v in json_result.items():
+            current_path = path[:]
+            current_path.append(k)
+            yield current_path
+
+            if isinstance(v, dict) or isinstance(v, list):
+                yield from generate_paths(v, path=current_path)
+
+    elif isinstance(json_result, list):
+        for idx, item in enumerate(json_result):
+            current_path = path[:]
+            current_path.append(idx)
+            yield from generate_paths(item, path=current_path)
+    else:
+        yield path
+
+
+def generate_paths_to_key(json_result, key, path=None):
     """Generator function for introspecting a nested JSON object and finding all
     routes to a particular key. If, for instance, the key 'href' appears inside
     the JSON object 11 times, this generator will return 11 separate results,
@@ -144,7 +193,7 @@ def generate_paths(json_result, key, path=None):
 
        >>> list(generate_paths(some_nested_json, 'SOMEKEY'))
        [['key1, 'key2', key3']['another_object', 'another_key', 1']]
-       >>> get_nested_valu(some_nested_json, ['key1, 'key2', key3'])
+       >>> get_nested_value(some_nested_json, ['key1, 'key2', key3'])
        'SOMEVALUE'
 
     """
@@ -159,13 +208,13 @@ def generate_paths(json_result, key, path=None):
             else:
                 current_path = path[:]
                 current_path.append(k)
-                yield from gen_path(v, key, path=current_path)
+                yield from generate_paths_to_key(v, key, path=current_path)
 
     elif isinstance(json_result, list):
         for idx, item in enumerate(json_result):
             current_path = path[:]
             current_path.append(idx)
-            yield from gen_path(item, key, path=current_path)
+            yield from generate_paths_to_key(item, key, path=current_path)
 
 
 def reverse_result(func):
@@ -276,14 +325,14 @@ def get_nested_value(json_result, keys):
             return get_nested_value(json_result.get(key, None), keys)
 
 
-def set_nested_value(json_results, keys, newvalue):
+def set_nested_value(json_result, path, newvalue):
     """If you have a set of key and/array indices that conform
     to a nested JSON object, you can use this function to set
     the value retrieved by those keys for that particular JSON object.
 
     Args:
 
-       `json_results` -- Nested JSON Object
+       `json_result` -- Nested JSON Object
        `keys` -- tuple or list of keys to navigate the object
        `newvalue` -- Replacement value
 
@@ -294,17 +343,19 @@ def set_nested_value(json_results, keys, newvalue):
        [{'a': 'c'}]
 
     It is also possible to write a find-and-replace by combining
-    `set_value` with `search_with_keys` to be used on lots of JSON objects::
+    `set_value` with `search_with_keys`::
 
         >>> for items in search_keys(json_results, keys, searchval):
-        ...  set_value(item, keys, newval)
+        ...  set_nested_value(item, keys, newval)
 
 
     Returns:
        Edited dictionary
     """
-    *keys, last_key = keys
-    editable = get_nested_value(json_results, keys)
-    if editable is not None and editable.get(last_key, False):
+    *keys, last_key = path
+    if len(keys) > 0:
+        editable = get_nested_value(json_result, keys)
         editable[last_key] = newvalue
-        return editable
+    else:
+        key, *_ = path
+        json_result[key] = newvalue

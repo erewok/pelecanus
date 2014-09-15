@@ -86,7 +86,7 @@ However, you can create a new path and set it equal to a new value if you pass i
 'newvalue'
 ```
 
-Because integers will *always* be interpreted as list-indices, this works for creating ad-hoc lists or adding elements to lists as well, but be advised of the behavior: when setting a new path, a `PelicanJson` object will back-fill any missing list indices with `None` (simliar to [assigning to a non-existent index in Ruby](http://www.ruby-doc.org/core-2.1.2/Array.html#method-i-5B-5D-3D)):
+Because integers will *always* be interpreted as list-indices, this works for creating ad-hoc lists or adding elements to lists as well, but be advised of the behavior: when setting a new path with `force=True1, a `PelicanJson` object will back-fill any missing list indices with `None` (simliar to [assigning to a non-existent index in Ruby](http://www.ruby-doc.org/core-2.1.2/Array.html#method-i-5B-5D-3D)):
 
 ```python
 >>> pelican.set_nested_value(['links', 'NewKey', 4, 'NewNestedKey'], 'LIST Example', force=True)
@@ -96,7 +96,7 @@ Because integers will *always* be interpreted as list-indices, this works for cr
 [None, None, None, None, {'NestedKey': 'LIST EXAMPLE'}]
 ```
 
-In this example, the `PelicanJson` object saw the integer and realized this must be a list index. However, the list was missing, so it created the list and then created all of the items at indices *before* the missing the index, at which point it inserted the missing item, a new object with the key-value pair of `NewNestedKey` and `LIST EXAMPLE`. This could be kind of annoying, but the expected path is now present!
+In this example, the `PelicanJson` object saw the integer and realized this must be a list index. However, the list was missing, so it created the list and then created all of the items at indices *before* the missing the index, at which point it inserted the missing item, a new object with the key-value pair of `NewNestedKey` and `LIST EXAMPLE`. If unexpected, this could be kind of annoying, but the goal is to *force* the path into existence and expected path is now present!
 
 
 #### Keys, Values, Items, etc.

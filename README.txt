@@ -1,9 +1,8 @@
 Pelecanus
 =========
 
-
 A Python3 application for navigating and editing nested JSON objects. For more 
-information, please see documentation/github.
+information, please see README.md (on github).
 
 
 Name
