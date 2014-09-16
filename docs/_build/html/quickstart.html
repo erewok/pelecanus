@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelecanus &mdash; pelecanus 0.4.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pelecanus 0.4.1 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">pelecanus 0.4.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pelecanus">
+<h1>pelecanus<a class="headerlink" href="#pelecanus" title="Permalink to this headline">¶</a></h1>
+<p>A Python3 application for navigating and editing nested JSON, named &#8216;pelecanus&#8217; after Pelecanus occidentalis, the <a class="reference external" href="http://www.nps.gov/chis/naturescience/brown-pelican.htm">brown Pelican of California and the Eastern Pacific</a>, which is a wonderful bird, but also named such because I got tired of writing &#8220;NestedJson&#8221;.</p>
+<p>This application has been built-for and tested on Python3.3 and Python3.4.</p>
+<div class="section" id="project-goals">
+<h2>Project Goals<a class="headerlink" href="#project-goals" title="Permalink to this headline">¶</a></h2>
+<p>Often, it&#8217;s necessary to explore a JSON object without knowing precisely where things are (in the case of Hypermedia, for example). By creating a recursive data structure, we can facilitate such tasks as retrieving key-value pairs, iterating through the data structure, and searching for elements in the data structure.</p>
+</div>
+<div class="section" id="how-to-use">
+<h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<p>To install for Python3.3+, simply do:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install pelecanus
+</pre></div>
+</div>
+<p><cite>pelecanus</cite> offers <cite>PelicanJson</cite> objects, which are nested dictionaries created from valid JSON objects. <cite>PelicanJson</cite> objects provide a few methods to make it easier to navigate and edit nested JSON objects.</p>
+<p>To create a PelicanJson object, you can pass the constructor a Python dictionary created from a JSON dump (or a simple Python dictionary that could be a valid JSON object):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;links&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;alternate&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;href&#39;</span><span class="p">:</span> <span class="s">&#39;somelink&#39;</span><span class="p">}]}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pelecanus</span> <span class="kn">import</span> <span class="n">PelicanJson</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span> <span class="o">=</span> <span class="n">PelicanJson</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enumerate">
+<h2>Enumerate<a class="headerlink" href="#enumerate" title="Permalink to this headline">¶</a></h2>
+<p>Once you have a <cite>PelicanJson</cite> object, probably one of the most useful things to do is to find all the nested paths and the values located at those paths. The <cite>enumerate</cite> method has been provided for this purpose:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pelican</span><span class="o">.</span><span class="n">enumerate</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+<span class="go">([&#39;links&#39;, &#39;alternate&#39;, 0, &#39;href&#39;], &#39;somelink&#39;)</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>In JSON, only strings may be used as keys [(see JSON spec)](<a class="reference external" href="http://json.org/">http://json.org/</a>), so the integers that appear in the nested path represent list indices. In this case, <cite>[&#8216;links&#8217;, alternate&#8217;, 0, &#8216;href&#8217;]</cite> actually represents:</p>
+<div class="highlight-python"><div class="highlight"><pre>1. A dictionary with a key `links`, which points to...
+2. Another dictionary which contains a key &#39;alternate&#39;, which contains...
+3. A list, the first item of which...
+4. Is a dictionary containing the key `href`.
+</pre></div>
+</div>
+<p><cite>enumerate</cite>, like most methods in a <cite>PelicanJson</cite> object, returns a generator. If you want just the paths and not their associated values, use the <cite>paths</cite> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pelican</span><span class="o">.</span><span class="n">paths</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+<span class="go">[&#39;links&#39;, &#39;alternate&#39;, 0, &#39;href&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="getting-and-setting-values">
+<h2>Getting and Setting Values<a class="headerlink" href="#getting-and-setting-values" title="Permalink to this headline">¶</a></h2>
+<p>You can retrieve the value from a nested path using <cite>get_nested_value</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">get_nested_value</span><span class="p">([</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;alternate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">])</span>
+<span class="go">&#39;somelink&#39;</span>
+</pre></div>
+</div>
+<p>If you want to change a nested value, you can use the <cite>set_nested_value</cite> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">set_nested_value</span><span class="p">([</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;alternate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">],</span> <span class="s">&#39;newvalue&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">get_nested_value</span><span class="p">([</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;alternate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">])</span>
+<span class="go">&#39;newvalue&#39;</span>
+</pre></div>
+</div>
+<p>If you attempt to set a nested value for a path that does not exist, an exception will be raised:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">set_nested_value</span><span class="p">([</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;BADKEY&#39;</span><span class="p">],</span> <span class="s">&#39;newvalue&#39;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">KeyError</span>: <span class="n">&#39;BADKEY&#39;</span>
+</pre></div>
+</div>
+<p>However, you can create a new path and set it equal to a new value if you pass in <cite>force=True</cite> when you call <cite>set_nested_value</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">set_nested_value</span><span class="p">([</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;BADKEY&#39;</span><span class="p">],</span> <span class="s">&#39;newvalue&#39;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">get_nested_value</span><span class="p">([</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;BADKEY&#39;</span><span class="p">])</span>
+<span class="go">&#39;newvalue&#39;</span>
+</pre></div>
+</div>
+<p>Because integers will <em>always</em> be interpreted as list-indices, this works for creating ad-hoc lists or adding elements to lists, but be advised: when setting a new path with <cite>force=True</cite>, a <cite>PelicanJson</cite> object will back-fill any missing list indices with <cite>None</cite> (simliar to <a class="reference external" href="http://www.ruby-doc.org/core-2.1.2/Array.html#method-i-5B-5D-3D">assigning to a non-existent array index in Ruby</a>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">new_path</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;NewKey&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s">&#39;NewNestedKey&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">set_nested_value</span><span class="p">(</span><span class="n">new_path</span><span class="p">,</span> <span class="s">&#39;LIST Example&#39;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">get_nested_value</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span>
+<span class="go">&#39;LIST EXAMPLE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">get_nested_value</span><span class="p">([</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;NewKey&#39;</span><span class="p">])</span>
+<span class="go">[None, None, None, None, {&#39;NestedKey&#39;: &#39;LIST EXAMPLE&#39;}]</span>
+</pre></div>
+</div>
+<p>In this example, the <cite>PelicanJson</cite> object found the integer and realized this must be a list index. However, the list was missing, so it created the list and then created all of the items at indices <em>before</em> the missing index, at which point it inserted the missing item, a new object with the key-value pair of <cite>NewNestedKey</cite> and <cite>LIST EXAMPLE</cite>. If unexpected, this behavior could be kind of annoying, but the goal is to <em>force</em> the path into existence and expected path is now present.</p>
+</div>
+<div class="section" id="keys-values-items-etc">
+<h2>Keys, Values, Items, etc.<a class="headerlink" href="#keys-values-items-etc" title="Permalink to this headline">¶</a></h2>
+<p>A <cite>PelicanJson</cite> object is a modified version of a Python dictionary, so you can use all of the normal dictionary methods, but it will mostly return nested results (which means you will often get duplicate <cite>keys</cite>). The length of the object too will be based on all the nested keys present:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">pelican</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">[&#39;links&#39;, &#39;attributes&#39;, &#39;href&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">pelican</span><span class="p">)</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<p><cite>values</cite> is only going to return values that exist at endpoints, which are the inside-most points of all nested objects, leaves in the tree, in other words:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">pelican</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="go">[&#39;somelink&#39;]</span>
+</pre></div>
+</div>
+<p>While <cite>items</cite> attempts to do double-duty, returning each key in the tree and its corresponding value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">pelican</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+<span class="go">[(&#39;links&#39;, &lt;PelicanJson: {&#39;attributes&#39;: [&lt;PelicanJson: {&#39;href&#39;: &#39;somelink&#39;}&gt;]}&gt;), (&#39;attributes&#39;, [&lt;PelicanJson: {&#39;href&#39;: &#39;somelink&#39;}&gt;]), (&#39;href&#39;, &#39;somelink&#39;)]</span>
+</pre></div>
+</div>
+<p>You can also use <cite>in</cite> to see if a key is somewhere inside the dictionary (even if it&#8217;s a nested key):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="s">&#39;attributes&#39;</span> <span class="ow">in</span> <span class="n">pelican</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="turning-it-back-into-a-plain-dictionary-or-json">
+<h2>Turning it back into a plain dictionary or JSON<a class="headerlink" href="#turning-it-back-into-a-plain-dictionary-or-json" title="Permalink to this headline">¶</a></h2>
+<p>Other useful methods include <cite>convert</cite> and <cite>serialize</cite> for turning the object back into a plain Python dictionary and for returning a JSON dump, respectively:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span> <span class="o">==</span> <span class="n">content</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+<span class="go">&#39;{&quot;links&quot;: {&quot;attributes&quot;: [{&quot;href&quot;: &quot;somelink&quot;}]}}&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pelican</span><span class="o">.</span><span class="n">serialize</span><span class="p">())</span> <span class="o">==</span> <span class="n">content</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="searching-keys-and-values">
+<h2>Searching Keys and Values<a class="headerlink" href="#searching-keys-and-values" title="Permalink to this headline">¶</a></h2>
+<p>You can also use the methods <cite>search_key</cite> and <cite>search_value</cite> in order to find all the paths that lead to keys or values you are searching for (data comes from the <a class="reference external" href="https://openlibrary.org/developers/api">Open Library API</a>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">book</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;ISBN:9780804720687&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;preview&#39;</span><span class="p">:</span> <span class="s">&#39;noview&#39;</span><span class="p">,</span> <span class="s">&#39;bib_key&#39;</span><span class="p">:</span> <span class="s">&#39;ISBN:9780804720687&#39;</span><span class="p">,</span> <span class="s">&#39;preview_url&#39;</span><span class="p">:</span> <span class="s">&#39;https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides&#39;</span><span class="p">,</span> <span class="s">&#39;info_url&#39;</span><span class="p">:</span> <span class="s">&#39;https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides&#39;</span><span class="p">,</span> <span class="s">&#39;thumbnail_url&#39;</span><span class="p">:</span> <span class="s">&#39;https://covers.openlibrary.org/b/id/577352-S.jpg&#39;</span><span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span> <span class="o">=</span> <span class="n">PelicanJson</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">pelican</span><span class="o">.</span><span class="n">search_key</span><span class="p">(</span><span class="s">&#39;preview&#39;</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[&#39;ISBN:9780804720687&#39;, &#39;preview&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">pelican</span><span class="o">.</span><span class="n">search_value</span><span class="p">(</span><span class="s">&#39;https://covers.openlibrary.org/b/id/577352-S.jpg&#39;</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[&#39;ISBN:9780804720687&#39;, &#39;thumbnail_url&#39;]</span>
+</pre></div>
+</div>
+<p>In addition, <cite>pluck</cite> is for retrieving the whole object that contains a particular key-value pair:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">pelican</span><span class="o">.</span><span class="n">pluck</span><span class="p">(</span><span class="s">&#39;preview&#39;</span><span class="p">,</span> <span class="s">&#39;noview&#39;</span><span class="p">))</span>
+<span class="go">[&lt;PelicanJson: {&#39;preview&#39;: &#39;noview&#39;, &#39;thumbnail_url&#39;: &#39;https://covers.openlibrary.org/b/id/577352-S.jpg&#39;, &#39;bib_key&#39;: &#39;ISBN:9780804720687&#39;, &#39;preview_url&#39;: &#39;https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides&#39;, &#39;info_url&#39;: &#39;https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides&#39;}&gt;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="find-and-replace">
+<h2>Find and Replace<a class="headerlink" href="#find-and-replace" title="Permalink to this headline">¶</a></h2>
+<p>Finally, there is also a <cite>find_and_replace</cite> method which searches for a particular value and replaces it with a passed-in replacement value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">pelican</span><span class="o">.</span><span class="n">search_value</span><span class="p">(</span><span class="s">&#39;https://covers.openlibrary.org/b/id/577352-S.jpg&#39;</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[&#39;ISBN:9780804720687&#39;, &#39;thumbnail_url&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">find_and_replace</span><span class="p">(</span><span class="s">&#39;https://covers.openlibrary.org/b/id/577352-S.jpg&#39;</span><span class="p">,</span> <span class="s">&#39;SOME NEW URL&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelican</span><span class="o">.</span><span class="n">get_nested_value</span><span class="p">([</span><span class="s">&#39;ISBN:9780804720687&#39;</span><span class="p">,</span> <span class="s">&#39;thumbnail_url&#39;</span><span class="p">])</span>
+<span class="go">&#39;SOME NEW URL&#39;</span>
+</pre></div>
+</div>
+<p>This can, of course, be dangerous, so use with caution.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pelecanus</a><ul>
+<li><a class="reference internal" href="#project-goals">Project Goals</a></li>
+<li><a class="reference internal" href="#how-to-use">How to Use</a></li>
+<li><a class="reference internal" href="#enumerate">Enumerate</a></li>
+<li><a class="reference internal" href="#getting-and-setting-values">Getting and Setting Values</a></li>
+<li><a class="reference internal" href="#keys-values-items-etc">Keys, Values, Items, etc.</a></li>
+<li><a class="reference internal" href="#turning-it-back-into-a-plain-dictionary-or-json">Turning it back into a plain dictionary or JSON</a></li>
+<li><a class="reference internal" href="#searching-keys-and-values">Searching Keys and Values</a></li>
+<li><a class="reference internal" href="#find-and-replace">Find and Replace</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/quickstart.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">pelecanus 0.4.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Erik Aker.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
