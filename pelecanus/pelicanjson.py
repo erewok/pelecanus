@@ -130,11 +130,11 @@ class PelicanJson(collections.MutableMapping):
         """
         for k, v in self.store.items():
             yield k
-            if type(v) == type(self):
+            if isinstance(v, PelicanJson):
                 yield from iter(v)
-            elif type(v) == list:
+            elif isinstance(v, list):
                 for item in v:
-                    if type(item) == type(self):
+                    if isinstance(item, PelicanJson):
                         yield from iter(item)
 
     def __repr__(self):
@@ -148,11 +148,11 @@ class PelicanJson(collections.MutableMapping):
         """
         for k, v in self.store.items():
             yield k, v
-            if type(v) == type(self):
+            if isinstance(v, PelicanJson):
                 yield from v.items()
-            elif type(v) == list:
+            elif isinstance(v, list):
                 for list_item in v:
-                    if type(list_item) == type(self):
+                    if isinstance(list_item, PelicanJson):
                         yield from list_item.items()
 
     def enumerate(self, path=None):
@@ -165,14 +165,13 @@ class PelicanJson(collections.MutableMapping):
             current_path = path[:]
             current_path.append(k)
 
-            if type(v) == type(self):
+            if isinstance(v, PelicanJson):
                 yield from v.enumerate(path=current_path)
-            elif type(v) == list:
+            elif isinstance(v, list):
                 for idx, list_item in enumerate(v):
                     list_path = current_path[:]
                     list_path.append(idx)
-                    if type(list_item) == type(self):
-
+                    if isinstance(list_item, PelicanJson):
                         yield from list_item.enumerate(path=list_path)
                     else:
                         yield list_path, list_item
@@ -202,12 +201,12 @@ class PelicanJson(collections.MutableMapping):
         """
         data = {}
         for k, v in self.store.items():
-            if type(v) == type(self):
+            if isinstance(v, PelicanJson):
                 data[k] = v.convert()
-            elif type(v) == list:
+            elif isinstance(v, list):
                 temp_list = []
                 for list_item in v:
-                    if type(list_item) == type(self):
+                    if isinstance(list_item, PelicanJson):
                         temp_list.append(list_item.convert())
                     else:
                         temp_list.append(list_item)
@@ -290,15 +289,14 @@ class PelicanJson(collections.MutableMapping):
             current_path.append(k)
             if k == searchkey:
                 yield current_path
-
-            if type(v) == type(self):
+            if isinstance(v, PelicanJson):
                 yield from v.search_key(searchkey,
                                        path=current_path)
-            elif type(v) == list:
+            elif isinstance(v, list):
                 for idx, list_item in enumerate(v):
                     list_path = current_path[:]
                     list_path.append(idx)
-                    if type(list_item) == type(self):
+                    if isinstance(list_item, PelicanJson):
                         yield from list_item.search_key(searchkey,
                                                         path=list_path)
 
@@ -313,14 +311,14 @@ class PelicanJson(collections.MutableMapping):
             if v == searchval:
                 yield current_path
 
-            if type(v) == type(self):
+            if isinstance(v, PelicanJson):
                 yield from v.search_value(searchval,
                                           path=current_path)
-            elif type(v) == list:
+            elif isinstance(v, list):
                 for idx, list_item in enumerate(v):
                     list_path = current_path[:]
                     list_path.append(idx)
-                    if type(list_item) == type(self):
+                    if isinstance(list_item, PelicanJson):
                         yield from list_item.search_value(searchval,
                                                           path=list_path)
                     elif list_item == searchval:
