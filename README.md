@@ -1,8 +1,8 @@
 # pelecanus ![](https://travis-ci.org/pellagic-puffbomb/pelecanus.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/pellagic-puffbomb/pelecanus/badge.png?branch=develop)](https://coveralls.io/r/pellagic-puffbomb/pelecanus?branch=master)
 
-A Python3 application for navigating and editing nested JSON, named 'pelecanus' after Pelecanus occidentalis, the [brown Pelican of California and the Eastern Pacific](http://www.nps.gov/chis/naturescience/brown-pelican.htm), which is a wonderful bird, but also named such because I got tired of writing "NestedJson".
+A small Python3 application for navigating and editing nested dictionaries, which typically come from JSON BLOBs, named 'pelecanus' after Pelecanus occidentalis, the [brown Pelican of California and the Eastern Pacific](http://www.nps.gov/chis/naturescience/brown-pelican.htm), which is a wonderful bird, but also named such because I got tired of writing "NestedJson".
 
-This application has been built-for and tested on Python3.3 and Python3.4.
+This application has been built-for Python3+. It has no external dependencies.
 
 ## Project Goals
 
