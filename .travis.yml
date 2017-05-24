@@ -7,8 +7,9 @@ python:
 env:
     - TOX_ENV=testenv
 install:
-    - "pip install -e ."
-    - "pip install coveralls"
+  - "pip install -r testing-requirements.txt"
+  - "pip install -e ."
+  - "pip install coveralls"
 script:
     - "py.test test"
 after_success:

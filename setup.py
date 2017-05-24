@@ -19,6 +19,7 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
+
 long_description = read('README.txt')
 
 
@@ -45,7 +46,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Internet",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries"
-        ],
+    ],
     install_requires=[],
     long_description=long_description
 )
