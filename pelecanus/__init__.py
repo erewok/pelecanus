@@ -10,6 +10,6 @@ http://www.nps.gov/chis/naturescience/brown-pelican.htm
 which is a wonderful bird and which deserves to have something
 named after it and because I got tired of writing "NestedJson".
 """
-from .pelicanjson import PelicanJson
+from .pelicanjson import PelicanJson  # noqa
 
-__version__ = '0.4.2'
+__version__ = '0.4.3'
