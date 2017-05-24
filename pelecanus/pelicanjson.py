@@ -291,7 +291,7 @@ class PelicanJson(collections.MutableMapping):
                 yield current_path
             if isinstance(v, PelicanJson):
                 yield from v.search_key(searchkey,
-                                       path=current_path)
+                                        path=current_path)
             elif isinstance(v, list):
                 for idx, list_item in enumerate(v):
                     list_path = current_path[:]

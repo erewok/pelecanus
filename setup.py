@@ -19,6 +19,7 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
+
 long_description = read('README.txt')
 
 
@@ -33,7 +34,7 @@ setup(
     license="GNU General Public License v2",
     download_url="https://github.com/pellagic-puffbomb/pelecanus.git",
     keywords=["json", "hateoas"],
-    tests_require=['nose', 'coverage'],
+    tests_require=['pytest', 'coverage', "flake8", "pytest_cov", "pytest-pep8"],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
@@ -45,8 +46,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Internet",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries"
-        ],
-    install_requires=[
     ],
+    install_requires=[],
     long_description=long_description
 )

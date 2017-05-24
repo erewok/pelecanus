@@ -188,15 +188,15 @@ class TestPelicanMethods(TestCase):
     def test_enumerate(self):
         book_url = 'https://openlibrary.org/books/OL7928788M/'
         book_url += 'Between_Pacific_Tides'
-        test_book_enums = [(['ISBN:9780804720687', 'thumbnail_url'],
-                            'https://covers.openlibrary.org/b/id/577352-S.jpg'),
-                           (['ISBN:9780804720687', 'bib_key'],
-                            'ISBN:9780804720687'),
-                           (['ISBN:9780804720687', 'preview_url'], book_url),
-                           (['ISBN:9780804720687', 'info_url'], book_url),
-                           (['ISBN:9780804720687', 'preview'], 'noview')]
+        test_book_enums = [
+            (['ISBN:9780804720687', 'thumbnail_url'],
+             'https://covers.openlibrary.org/b/id/577352-S.jpg'),
+            (['ISBN:9780804720687', 'bib_key'],
+             'ISBN:9780804720687'),
+            (['ISBN:9780804720687', 'preview_url'], book_url),
+            (['ISBN:9780804720687', 'info_url'], book_url),
+            (['ISBN:9780804720687', 'preview'], 'noview')]
         test_book = PelicanJson(self.book)
-        check_enums = list(test_book.enumerate())
         for path, value in test_book.enumerate():
             self.assertIn((path, value), test_book_enums)
 

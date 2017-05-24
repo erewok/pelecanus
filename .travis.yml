@@ -1,14 +1,16 @@
 language: python
-python: 
+python:
     - "3.3"
     - "3.4"
+    - "3.5"
+    - "3.6"
 env:
     - TOX_ENV=testenv
 install:
-    - "pip install coverage"
-    - "pip install nose"
-    - "pip install coveralls"
+  - "pip install -r testing-requirements.txt"
+  - "pip install -e ."
+  - "pip install coveralls"
 script:
-    - "nosetests --with-coverage --cover-package=pelecanus"
+    - "py.test test"
 after_success:
   - coveralls
