@@ -184,10 +184,16 @@ class PelicanJson(collections.MutableMapping):
         for path, _ in self.enumerate():
             yield path
 
-    def keys(self):
+    def keys(self, flat=False):
         """Generator that iterates through the keys of the nested object.
+
+        kwargs:
+           `flat` (bool): whether to return only top-level keys.
         """
-        yield from iter(self)
+        if flat:
+            yield from self.store.keys()
+        else:
+            yield from iter(self)
 
     def values(self):
         """Generator that returns values-only for the object.

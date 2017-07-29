@@ -222,6 +222,12 @@ class TestPelicanMethods(TestCase):
         self.assertEqual(len(test_pelican), len(set(test_pelican.keys())),
                          len(pkeys))
 
+    def test_keys_flat(self):
+        test_book = PelicanJson(self.book)
+        test_pelican = PelicanJson(self.pelecanus_occidentalis)
+        assert set(test_book.keys(flat=True)) == {'ISBN:9780804720687'}
+        assert set(test_pelican.keys(flat=True)) == {"query"}
+
     def test_values(self):
         pvalues = {'Pelecanus occidentalis', 'Pelecanus_occidentalis',
                    0, 'Pelecanus occidentalis', 1266004}

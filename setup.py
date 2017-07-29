@@ -34,7 +34,11 @@ setup(
     license="GNU General Public License v2",
     download_url="https://github.com/pellagic-puffbomb/pelecanus.git",
     keywords=["json", "hateoas"],
-    tests_require=['pytest', 'coverage', "flake8", "pytest_cov", "pytest-pep8"],
+    tests_require=['pytest',
+                   'coverage',
+                   "flake8",
+                   "pytest_cov",
+                   "pytest-pep8"],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
