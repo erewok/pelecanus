@@ -381,6 +381,33 @@ class PelicanJson(collections.MutableMapping):
             key, *_ = path
             self.store[key] = newvalue
 
+    def safe_get_nested_value(self, path, default=None):
+        """Retrieves nested value at the end of a path. Returns `default`
+        if path doesn't return a value.
+
+        kwargs:
+
+          default: if supplied, returns this instead of IndexError/KeyError
+        """
+        def valgetter(data, keys):
+            if len(keys) <= 1:
+                return data[keys[0]]
+            else:
+                key, *keys = keys
+                return valgetter(data[key], keys)
+
+        if isinstance(path, list) or isinstance(path, tuple):
+            if len(path) > 0:
+                try:
+                    return valgetter(self.store, path)
+                except:
+                    return default
+            else:
+                raise EmptyPath("Path must have at least one element.")
+        else:
+            errmsg = "Path passed in is not a list or a tuple"
+            raise BadPath(errmsg.format(str(path)))
+
     def find_and_replace(self, matchval, replaceval):
         """Will replace all matched values with the replacement value
         passed in and will yield the paths associated with the

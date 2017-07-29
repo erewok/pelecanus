@@ -509,6 +509,21 @@ class TestPelicanMethods(TestCase):
         self.assertEqual(test_pelican.get_nested_value(none_placeholder),
                          None)
 
+    def test_safe_get_nested_value(self):
+        test_pelican = PelicanJson(self.monterrey)
+        assert test_pelican.safe_get_nested_value(["STRING"]) is None
+        badpath = ('results', 'value', '9')
+        assert test_pelican.safe_get_nested_value(badpath,
+                                                  default="la") == "la"
+        assert test_pelican.safe_get_nested_value([8], default=0) == 0
+        tp = (1, 2)
+        assert test_pelican.safe_get_nested_value(['results', 1000],
+                                                  default=tp) == tp
+        with self.assertRaises(EmptyPath):
+            test_pelican.safe_get_nested_value([])
+        with self.assertRaises(BadPath):
+            test_pelican.safe_get_nested_value({'results', 8})
+
     def test_find_and_replace(self):
         test_pelican = PelicanJson(self.pelecanus_occidentalis)
         test_pelican.find_and_replace('Pelecanus occidentalis',
