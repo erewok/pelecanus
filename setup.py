@@ -1,3 +1,27 @@
+"""
+Pelecanus
+=========
+
+A Python3 application for navigating and editing nested JSON objects. For more
+information, please see README.md (on github).
+
+
+Name
+----
+Named 'pelecanus' after Pelecanus occidentalis, the
+brown Pelican of California and the Eastern Pacific:
+
+http://www.nps.gov/chis/naturescience/brown-pelican.htm
+
+which is a wonderful bird and which deserves to have something
+named after it and because I got tired of writing "NestedJson".
+
+More Info
+---
+
+See github project for more detailed usage instructions.
+"""
+
 from setuptools import setup
 import os
 import codecs
@@ -18,9 +42,6 @@ def find_version(*file_paths):
     if version_match:
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
-
-
-long_description = read('README.txt')
 
 
 setup(
@@ -52,5 +73,5 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries"
     ],
     install_requires=[],
-    long_description=long_description
+    long_description=__doc__
 )
