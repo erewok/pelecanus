@@ -61,6 +61,15 @@ You can retrieve the value from a nested path using `get_nested_value`:
 'somelink'
 ```
 
+If you would like to have a default returned instead of an exception, you use `safe_get_nested_value:
+
+``` python
+>>> pelican.safe_get_nested_value(['broken', 'route', 0])
+None
+>>> pelican.safe_get_nested_value(['broken', 'route', 0], default=1)
+1
+```
+
 If you want to change a nested value, you can use the `set_nested_value` method:
 
 ```python
@@ -111,6 +120,13 @@ A `PelicanJson` object is a modified version of a Python dictionary, so you can 
 3
 ```
 
+You can get *normal* dict behavior with `keys` if you tell it you want the `flat` keys:
+
+```python
+>>> list(pelican.keys(flat=True))
+['links']
+```
+
 `values` is only going to return values that exist at endpoints, which are the inside-most points of all nested objects, leaves in the tree, in other words:
 
 ```python
@@ -150,7 +166,7 @@ True
 
 #### Searching Keys and Values
 
-You can also use the methods `search_key` and `search_value` in order to find all the paths that lead to keys or values you are searching for (data comes from the [Open Library API](https://openlibrary.org/developers/api)). 
+You can also use the methods `search_key` and `search_value` in order to find all the paths that lead to keys or values you are searching for (data comes from the [Open Library API](https://openlibrary.org/developers/api)).
 
 ```python
 >>> book = {'ISBN:9780804720687': {'preview': 'noview', 'bib_key': 'ISBN:9780804720687', 'preview_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'info_url': 'https://openlibrary.org/books/OL7928788M/Between_Pacific_Tides', 'thumbnail_url': 'https://covers.openlibrary.org/b/id/577352-S.jpg'}}
