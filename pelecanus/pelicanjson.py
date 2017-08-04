@@ -400,7 +400,7 @@ class PelicanJson(collections.MutableMapping):
             if len(path) > 0:
                 try:
                     return valgetter(self.store, path)
-                except:
+                except (KeyError, IndexError, TypeError):
                     return default
             else:
                 raise EmptyPath("Path must have at least one element.")

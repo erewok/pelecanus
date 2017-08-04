@@ -519,6 +519,12 @@ class TestPelicanMethods(TestCase):
         tp = (1, 2)
         assert test_pelican.safe_get_nested_value(['results', 1000],
                                                   default=tp) == tp
+
+        assert test_pelican.safe_get_nested_value(["results", 10000],
+                                                  default="test") == "test"
+        assert test_pelican.safe_get_nested_value(["results", "key"],
+                                                  default="test") == "test"
+
         with self.assertRaises(EmptyPath):
             test_pelican.safe_get_nested_value([])
         with self.assertRaises(BadPath):
