@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "pelecanus"
+version = "0.5.3"
+description = "Python3 application for navigating and editing nested JSON"
+readme = "./README.md"
+authors = ["Erik Aker <eraker@gmail.com>"]
+license = "GNU General Public License v2"
+homepage = "https://github.com/erewok/pelecanus"
+repository = "https://github.com/erewok/pelecanus"
+documentation = "https://pelecanus.readthedocs.io/en/latest/"
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+    "Environment :: Other Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+coverage="^6.4.4"
+pytest="^7.1.2"
+pytest-cov="^3.0.0"
+pytest-pycodestyle="^2.3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = "--no-cov-on-fail --showlocals --strict-markers --cov=pelecanus --pycodestyle"
+testpaths = ["test"]
