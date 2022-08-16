@@ -11,6 +11,11 @@ jobs:
   tests:
     name: "Python ${{ matrix.python-version }}"
     runs-on: "ubuntu-latest"
+    env:
+      CODECOV_UPLOAD: false
+      PIPX_VERSION: "0.16.4"
+      POETRY_VERSION: "1.1.14"
+      PYPI_PUBLISH: false
 
     strategy:
       matrix:
@@ -21,9 +26,16 @@ jobs:
       - uses: "actions/setup-python@v4"
         with:
           python-version: "${{ matrix.python-version }}"
+      - name: Set up Poetry cache for Python dependencies
+        uses: actions/cache@v3
+        if: startsWith(runner.os, 'Linux')
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: ${{ runner.os }}-poetry-
       - name: "Install poetry"
         run: "pip install poetry"
       - name: "Run poetry update"
-        run: "poetry update --dev"
+        run: "poetry update"
       - name: "Run tests"
         run: "poetry run pytest"
