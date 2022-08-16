@@ -15,7 +15,13 @@ actually think that's allowed, per JSON spec.
 """
 import copy
 import json
-import collections
+import sys
+
+if sys.version_info.major == 3 and sys.version_info.minor >= 10:
+    from collections.abc import MutableMapping
+    from collections import deque
+else:
+    from collections import MutableMapping, deque
 
 from .toolbox import backfill_append
 from .toolbox import new_json_from_path
@@ -24,7 +30,7 @@ from .exceptions import BadPath
 from .exceptions import EmptyPath
 
 
-class PelicanJson(collections.MutableMapping):
+class PelicanJson(MutableMapping):
     """PelicanJson objects are nested JSON objects that provide a few
     methods to make it easier to navigate and edit nested JSON objects.
 
@@ -251,7 +257,7 @@ class PelicanJson(collections.MutableMapping):
         # Now, let's take this path and figure out how much of it is already
         # present in the object.
         keys_present = path[:]
-        keys_missing = collections.deque()
+        keys_missing = deque()
         while keys_present and not test_path(keys_present):
             keys_missing.appendleft(keys_present.pop())
 
