@@ -29,6 +29,7 @@ coverage="^6.4.4"
 pytest="^7.1.2"
 pytest-cov="^3.0.0"
 pytest-pycodestyle="^2.3.0"
+twine = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
