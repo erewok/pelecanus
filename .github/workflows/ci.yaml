@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11-dev"]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
     steps:
       - uses: "actions/checkout@v3"
       - uses: "actions/setup-python@v4"
@@ -24,6 +24,6 @@ jobs:
       - name: "Install poetry"
         run: "pip install poetry"
       - name: "Run poetry update"
-        run: "poetry update"
+        run: "poetry update --dev"
       - name: "Run tests"
         run: "poetry run pytest"
